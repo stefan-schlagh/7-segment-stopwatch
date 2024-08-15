@@ -21,7 +21,7 @@ body {
 #clock {
   display: flex;
   align-items: center;
-  transform: scaleX(1.25) skew(-5deg);
+  transform: scaleX(10) scaleY(8) skew(-5deg);
 }
 
 .separator {
