@@ -1,7 +1,5 @@
 // Reference image for a 7 segment display, https://i.imgur.com/fFpXwcS.png
 
-import "./styles.css";
-
 // 7 segment clock
 // I will be creating a 7 segment clock, which looks like hh:mm:ss. It will be a 24hr clock.
 // I need to have some logic to update the curren time, this will be my primary state, I will then need to have some kind of a transformer which converts this time into a particular format, e.g. it could be hh:mm:ss.
@@ -9,34 +7,18 @@ import "./styles.css";
 // The above component will be rendered by a component which renders time. This component will have the logic to parse current epoch time into a particular format (hh:mm:ss). The separator (:) needs to also be of 7 segment type. It could take in a parameter which dictates whether it blinks or not in sync with the second change.
 // The above component should have a simple rendering logic, something like an array of arrays of numbers. Every array of numbers will represent one of hh, dd or ss. A separator 7 segment display unit will be added between such various groups of numbers.
 
-enum TimeUnit {
-  TSECOND,
-  SECOND,
-  MINUTE
-}
-
-enum UIElementType {
-  NUMBER,
-  SEPARATOR
-}
-
-interface UIElement {
-  type: UIElementType;
-  data: any;
-}
-
 class Clock {
-  anchorElement: HTMLElement;
-  currentTime: Date;
-  lastUpdateTime: number;
-  updateFrequency: number;
-  showSeparator: boolean = true;
-  startTime: number;
+  anchorElement;
+  currentTime;
+  lastUpdateTime;
+  updateFrequency;
+  showSeparator = true;
+  startTime;
 
   constructor(
-    anchorElement: HTMLElement,
-    startTime?: number,
-    updateEvery: TimeUnit = TimeUnit.TSECOND
+    anchorElement,
+    startTime,
+    updateEvery = "TSECOND"
   ) {
     if (typeof startTime !== undefined) {
     }
@@ -46,20 +28,42 @@ class Clock {
     this.lastUpdateTime = 0;
     this.updateFrequency = this.getUpdateFrequency(updateEvery);
     this.startTime = this.currentTime.getTime();
+    this.renderTime();
     this.updateCurrentTime();
+
+    this.start = false;
+    this.reset = false;
+    this.stop = false;
+    this.running = false;
+
+
+    addEventListener("keydown", (event) => {
+        console.log(event.code)
+        if (event.code === "Digit1") {  // 49 is the keyCode for '1'
+            this.start = true
+        }
+        if (event.code === "Digit2") {  // 49 is the keyCode for '1'
+            this.reset = true
+        }
+        if (event.code === "Digit3") {  // 49 is the keyCode for '1'
+            this.stop = true
+        }
+        if (event.code === "KeyF") { 
+            document.documentElement.requestFullscreen();
+        }
+    });
+
   }
 
-  getUpdateFrequency(updateFrequency: TimeUnit): number {
-    const { TSECOND, SECOND, MINUTE } = TimeUnit;
-
+  getUpdateFrequency(updateFrequency) {
     switch (updateFrequency) {
-      case TSECOND:
+      case "TSECOND":
         return 10;
 
-      case SECOND:
+      case "SECOND":
         return 1000;
 
-      case MINUTE:
+      case "MINUTE":
         return 60 * 1000;
     }
   }
@@ -69,12 +73,34 @@ class Clock {
       this.currentTime = new Date();
       const currentTimeInMilliseconds = this.currentTime.getTime();
 
+
+      if(this.start){
+        this.start = false;
+        this.running = true;
+        this.startTime = this.currentTime.getTime();
+      }
+      if(this.stop){
+        this.stop = false;
+        this.running = false;
+        this.showSeparator = true;
+        this.renderTime();
+      }
+      if(this.reset){
+        this.reset = false;
+        this.running = false;
+        this.showSeparator = true;
+        this.startTime = this.currentTime.getTime();
+        this.renderTime();
+      }
+
       if (
         currentTimeInMilliseconds - this.lastUpdateTime >
         this.updateFrequency
       ) {
-        this.lastUpdateTime = this.currentTime.getTime();
-        this.renderTime();
+        if(this.running){
+            this.lastUpdateTime = this.currentTime.getTime();
+            this.renderTime();
+        }
       }
 
       this.updateCurrentTime();
@@ -82,34 +108,37 @@ class Clock {
   };
 
   renderTime = () => {
-    const formattedTime = this.currentTime.toLocaleTimeString();
+    //const formattedTime = this.currentTime.toLocaleTimeString();
     //const formattedTimeSplit = formattedTime.split(`:`);
 
     // number: integer
-    const twoDigitNumber = (number:number): string => {
-      if(number < 10) return "0" + number;
-      return "" + number;
+    const twoDigitNumber = (number) => {
+        number = parseInt(number)
+        if(("" + number).length < 2) return "0" + number;
+        if(number >= 100) return "" + number % 100;
+        return "" + number;
     } 
 
     const time = this.currentTime.getTime();
     const timeSinceStart = time - this.startTime;
 
-    const minutes = "00";
+    const minutes = "00"
     const seconds = twoDigitNumber(timeSinceStart / 1000);
     const tenths = twoDigitNumber((timeSinceStart/10) % 100)
 
-    const formattedTimeSplit = [minutes,seconds,tenths]
+    //const formattedTimeSplit = [minutes,seconds,tenths]
+    const formattedTimeSplit = [seconds,tenths]
     
-    const uiElements = formattedTimeSplit.reduce<Array<UIElement>>(
+    const uiElements = formattedTimeSplit.reduce(
       (acc, curr, index) => {
         acc.push({
-          type: UIElementType.NUMBER,
+          type: "NUMBER",
           data: curr
         });
 
         if (index !== formattedTimeSplit.length - 1) {
           acc.push({
-            type: UIElementType.SEPARATOR,
+            type: "SEPARATOR",
             data: `-`
           });
         }
@@ -122,8 +151,7 @@ class Clock {
     const htmlStrings = uiElements.map((item) => {
       const { type, data } = item;
 
-      if (type === UIElementType.NUMBER) {
-        //const stringData = data as number;
+      if (type === "NUMBER") {
         const digits = data.slice(0, 2).split(``);
 
         return `
@@ -131,7 +159,7 @@ class Clock {
               ${digits.map((item) => getDigit(Number(item))).join(``)}
             </div>
           `;
-      } else if (type === UIElementType.SEPARATOR) {
+      } else if (type === "SEPARATOR") {
         return `
           <div class="separator ${
             this.showSeparator ? `` : `separator--invisible`
@@ -143,15 +171,15 @@ class Clock {
     });
 
     this.anchorElement.innerHTML = htmlStrings.join(``);
-    this.showSeparator = !this.showSeparator;
+    //this.showSeparator = !this.showSeparator;
   };
 }
 
 const clockElement = document.getElementById(`clock`);
-new Clock(clockElement!);
+new Clock(clockElement);
 
-function getDigit(digit: number) {
-  const litSegmentMap: Record<string, Record<number, boolean>> = {
+function getDigit(digit) {
+  const litSegmentMap = {
     a: {
       0: true,
       2: true,
