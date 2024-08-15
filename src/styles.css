@@ -1,0 +1,96 @@
+body {
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  background-color: #303030;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-family: "Montserrat", sans-serif;
+  font-size: 48px;
+  color: #f5f5f5;
+}
+
+#clock {
+  display: flex;
+  align-items: center;
+  transform: scaleX(1.25) skew(-5deg);
+}
+
+.separator {
+  position: relative;
+  margin: 4px;
+  color: red;
+}
+
+.separator--invisible {
+  visibility: hidden;
+}
+
+.segment {
+  display: flex;
+  position: relative;
+}
+
+.segment--vertical {
+  transform: rotate(90deg);
+}
+
+#segment-d,
+#segment-g {
+  margin-top: 12px;
+}
+
+#segment-b,
+#segment-c {
+  transform-origin: left;
+  transform: rotate(90deg);
+  bottom: 4px;
+}
+
+#segment-f,
+#segment-e {
+  transform-origin: right;
+  transform: rotate(-90deg);
+  bottom: 8px;
+}
+
+.arrow-left {
+  border-top: 2px solid transparent;
+  border-right: 2px solid #505050;
+  border-bottom: 2px solid transparent;
+  border-left: 2px solid transparent;
+}
+
+.segment--visible .arrow-left {
+  border-right-color: red;
+}
+
+.arrow-right {
+  border-top: 2px solid transparent;
+  border-right: 2px solid transparent;
+  border-bottom: 2px solid transparent;
+  border-left: 2px solid #505050;
+}
+
+.segment--visible .arrow-right {
+  border-left-color: red;
+}
+
+.middle-bar {
+  background-color: #505050;
+  height: 4px;
+  width: 16px;
+}
+
+.segment--visible .middle-bar {
+  background-color: red;
+}
+
+#digit {
+  margin: 0 8px;
+  height: 50px;
+  display: flex;
+  flex-direction: column;
+}
