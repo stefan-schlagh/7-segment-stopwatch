@@ -18,7 +18,7 @@ class Clock {
   constructor(
     anchorElement,
     startTime,
-    updateEvery = "TSECOND"
+    updateEvery = "HSECOND"
   ) {
     if (typeof startTime !== undefined) {
     }
@@ -39,13 +39,13 @@ class Clock {
 
     addEventListener("keydown", (event) => {
         console.log(event.code)
-        if (event.code === "Digit1") {  // 49 is the keyCode for '1'
+        if (event.code === "Digit1") {
             this.start = true
         }
-        if (event.code === "Digit2") {  // 49 is the keyCode for '1'
-            this.reset = true
+        if (event.code === "KeyR") {
+          this.reset = true
         }
-        if (event.code === "Digit3") {  // 49 is the keyCode for '1'
+        if (event.code === "Digit3") {
             this.stop = true
         }
         if (event.code === "KeyF") { 
@@ -57,7 +57,7 @@ class Clock {
 
   getUpdateFrequency(updateFrequency) {
     switch (updateFrequency) {
-      case "TSECOND":
+      case "HSECOND":
         return 10;
 
       case "SECOND":
@@ -73,19 +73,20 @@ class Clock {
       this.currentTime = new Date();
       const currentTimeInMilliseconds = this.currentTime.getTime();
 
-
-      if(this.start){
-        this.start = false;
-        this.running = true;
-        this.startTime = this.currentTime.getTime();
-      }
-      if(this.stop){
+      if(this.stop & this.running){
         this.stop = false;
+        this.start = false;
         this.running = false;
         this.showSeparator = true;
         this.renderTime();
       }
-      if(this.reset){
+      else if(this.start & !this.running){
+        this.start = false;
+        this.stop = false;
+        this.running = true;
+        this.startTime = this.currentTime.getTime();
+      }
+      else if(this.reset){
         this.reset = false;
         this.running = false;
         this.showSeparator = true;
