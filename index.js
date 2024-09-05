@@ -34,15 +34,16 @@ class Clock {
     this.start = false;
     this.reset = false;
     this.stop = false;
-    this.running = false;
 
+    this.running = false;
+    this.hasbeenReset = true;
 
     addEventListener("keydown", (event) => {
         console.log(event.code)
         if (event.code === "Digit1") {
             this.start = true
         }
-        if (event.code === "KeyR") {
+        if (event.code === "KeyR" || event.code === "Digit2") {
           this.reset = true
         }
         if (event.code === "Digit3") {
@@ -73,22 +74,32 @@ class Clock {
       this.currentTime = new Date();
       const currentTimeInMilliseconds = this.currentTime.getTime();
 
-      if(this.stop & this.running){
+      // stop when stop signal was sent and clock is running
+      if(this.stop && this.running){
         this.stop = false;
         this.start = false;
+
         this.running = false;
         this.showSeparator = true;
         this.renderTime();
       }
-      else if(this.start & !this.running){
+      // start when start signal was sent and clock is not running and clock was reset since last start
+      else if(this.start && !this.running && this.hasbeenReset){
         this.start = false;
         this.stop = false;
+
         this.running = true;
+        this.hasbeenReset = false;
         this.startTime = this.currentTime.getTime();
       }
+      // reset when reset signal was sent - after the reset the clock will not run
       else if(this.reset){
         this.reset = false;
+        this.stop = false;
+        this.start = false;
+
         this.running = false;
+        this.hasbeenReset = true;
         this.showSeparator = true;
         this.startTime = this.currentTime.getTime();
         this.renderTime();
