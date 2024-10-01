@@ -37,23 +37,17 @@ class Clock {
 
     this.running = false;
     this.hasbeenReset = true;
+  }
+  start_signal(){
+    this.start = true;
+  }
 
-    addEventListener("keydown", (event) => {
-        console.log(event.code)
-        if (event.code === "Digit1") {
-            this.start = true
-        }
-        if (event.code === "KeyR" || event.code === "Digit2") {
-          this.reset = true
-        }
-        if (event.code === "Digit3") {
-            this.stop = true
-        }
-        if (event.code === "KeyF") { 
-            document.documentElement.requestFullscreen();
-        }
-    });
-
+  stop_signal(){
+    this.stop = true;
+  }
+  
+  reset_signal(){
+    this.reset = true;
   }
 
   getUpdateFrequency(updateFrequency) {
@@ -187,8 +181,40 @@ class Clock {
   };
 }
 
-const clockElement = document.getElementById(`clock`);
-new Clock(clockElement);
+const clockElement1 = document.getElementById(`clock-1`);
+const clockElement2 = document.getElementById(`clock-2`);
+const clock1 = new Clock(clockElement1);
+const clock2 = new Clock(clockElement2);
+
+addEventListener("keydown", (event) => {
+  if (event.code === "KeyW") {
+      firstClock = document.getElementById("clock-1")
+      firstClock.classList.toggle("clock-big")
+      firstClock.classList.toggle("clock-small")
+      secondHalf = document.getElementById("screen-half-2")
+      secondHalf.classList.toggle("screen-half")
+      secondHalf.classList.toggle("hide")
+  }
+  if (event.code === "Digit1") {
+    clock1.start_signal()
+  }
+  if (event.code === "Digit2") {
+    clock2.start_signal()
+  }
+  if (event.code === "KeyR") {
+    clock1.reset_signal()
+    clock2.reset_signal()
+  }
+  if (event.code === "Digit3") {
+    clock1.stop_signal()
+  }
+  if (event.code === "Digit4") {
+    clock2.stop_signal()
+  }
+  if (event.code === "KeyF") { 
+      document.documentElement.requestFullscreen();
+  }
+})
 
 function getDigit(digit) {
   const litSegmentMap = {

@@ -1,5 +1,5 @@
-<!-- nandwana92 - see https://codesandbox.io/p/sandbox/7-segment-clock-k98dm?file=%2Fsrc%2Fstyles.css -->
-<!-- 2024 - Stefan Schlaghuber -->
+<!-- © nandwana92 - see https://codesandbox.io/p/sandbox/7-segment-clock-k98dm?file=%2Fsrc%2Fstyles.css -->
+<!-- © 2024 Stefan Schlaghuber -->
 <html>
   <head>
     <title>Stopwatch</title>
@@ -12,12 +12,17 @@
       href="styles.css"
       rel="stylesheet"
     />
+    <script src="index.js" defer></script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
   </head>
 
   <body>
-    <div id="clock"></div>
-    <script src="index.js"></script>
+    <div class="screen-half" id="screen-half-1">
+      <div class="clock clock-big" id="clock-1"></div>
+    </div>
+    <div class="hide" id="screen-half-2">
+      <div class="clock clock-small" id="clock-2"></div>
+    </div>
   </body>
 </html>
