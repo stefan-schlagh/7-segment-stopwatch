@@ -179,6 +179,7 @@ class Clock {
       // stop when stop signal was sent and clock is running
       if(this.stop && this.running){
         this.stop = false;
+        this.reset = false;
         this.start = false;
 
         this.running = false;
@@ -188,6 +189,7 @@ class Clock {
       // start when start signal was sent and clock is not running and clock was reset since last start
       else if(this.start && !this.running && this.hasbeenReset){
         this.start = false;
+        this.reset = false;
         this.stop = false;
 
         this.running = true;
@@ -206,6 +208,10 @@ class Clock {
         this.startTime = this.currentTime.getTime();
         this.renderTime();
       }
+      // set signals all to false
+      this.reset = false;
+      this.stop = false;
+      this.start = false;
 
       if (
         currentTimeInMilliseconds - this.lastUpdateTime >
