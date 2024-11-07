@@ -1,3 +1,111 @@
+class KeyBindingsManager {
+  constructor() {
+      this.defaultBindings = {
+        'Toggle second clock': 'KeyW',
+        'Start First Clock': 'Digit1',
+        'Stop First Clock': 'Digit2',
+        'Start Second Clock': 'Digit3',
+        'Stop Second Clock': 'Digit4',
+        'Reset #1': 'KeyR',
+        'Reset #2': 'Digit5',
+        'Fullscreen': 'KeyF',
+        'Toggle Settings': 'F1'
+      }
+      this.bindings = this.defaultBindings//this.getBindingsFromCookie();
+      console.log(this)
+      this.renderBindings();
+      this.addEventListeners();
+      this.isShown = true;
+  }
+
+  getBindingsFromCookie() {
+      const cookie = document.cookie.replace(
+      /(?:(?:^|.*;\s*)key_bindings\s*\=\s*([^;]*).*$)|^.*$/,
+      "$1"
+      );
+      return cookie ? JSON.parse(cookie) : this.defaultBindings;
+  }
+
+  saveBindingsToCookie() {
+      const expirationDate = new Date();
+      expirationDate.setFullYear(expirationDate.getFullYear() + 1);
+      document.cookie = `key_bindings=${JSON.stringify(this.bindings)};expires=${expirationDate.toUTCString()};path=/`;
+  }
+
+  renderBindings() {
+      console.log("render")
+      const container = document.getElementById('key-bindings-manager');
+
+      const title = document.createElement('h2');
+      title.className = 'text-2xl font-bold mb-4';
+      title.textContent = 'Key Bindings Manager';
+      container.appendChild(title);
+
+      const bindingsContainer = document.createElement('div');
+      bindingsContainer.className = 'space-y-4';
+      container.appendChild(bindingsContainer);
+
+      for (const [key, value] of Object.entries(this.bindings)) {
+        const bindingContainer = document.createElement('div');
+        bindingContainer.className = 'settings-item';
+
+        const label = document.createElement('label');
+        label.htmlFor = `binding-${key}`;
+        label.textContent = `${key}:`;
+        bindingContainer.appendChild(label);
+
+        const input = document.createElement('input');
+        input.id = `binding-${key}`;
+        input.type = 'text';
+        input.value = value;
+        input.addEventListener('input', (e) => this.handleBindingChange(key, e.target.value));
+        bindingContainer.appendChild(input);
+
+        bindingsContainer.appendChild(bindingContainer);
+      }
+
+      const resetButton = document.createElement('button');
+      resetButton.textContent = 'Reset to Defaults';
+      resetButton.addEventListener('click', () => this.resetBindings());
+      container.appendChild(resetButton);
+
+      const closeButton = document.createElement('button');
+      closeButton.textContent = 'close';
+      closeButton.addEventListener('click', () => this.hideBindings());
+      container.appendChild(closeButton);
+
+      return container;
+  }
+
+  showBindings(){
+      const container = document.getElementById('key-bindings-manager');
+      container.classList.toggle("hide")
+      this.isShown = true
+  }
+
+  hideBindings(){
+    const container = document.getElementById('key-bindings-manager');
+    container.classList.toggle("hide")
+    this.isShown = true
+  }
+
+  handleBindingChange(key, value) {
+      this.bindings[key] = value;
+      this.saveBindingsToCookie();
+  }
+
+  resetBindings() {
+      this.bindings = this.defaultBindings;
+      this.saveBindingsToCookie();
+      this.renderBindings();
+  }
+
+  addEventListeners() {
+      //document.getElementById('key-bindings-manager').appendChild(this.renderBindings());
+      //document.body.appendChild();
+  }
+}
+
 // Reference image for a 7 segment display, https://i.imgur.com/fFpXwcS.png
 
 // 7 segment clock
@@ -87,7 +195,7 @@ class Clock {
         this.startTime = this.currentTime.getTime();
       }
       // reset when reset signal was sent - after the reset the clock will not run
-      else if(this.reset){
+      else if(this.reset && !this.running){
         this.reset = false;
         this.stop = false;
         this.start = false;
@@ -186,8 +294,11 @@ const clockElement2 = document.getElementById(`clock-2`);
 const clock1 = new Clock(clockElement1);
 const clock2 = new Clock(clockElement2);
 
+const keyBindingsManager = new KeyBindingsManager();
+
 addEventListener("keydown", (event) => {
-  if (event.code === "KeyW") {
+  console.log(event.code)
+  if (event.code === keyBindingsManager.bindings["Toggle second clock"]) {
       firstClock = document.getElementById("clock-1")
       firstClock.classList.toggle("clock-big")
       firstClock.classList.toggle("clock-small")
@@ -195,24 +306,30 @@ addEventListener("keydown", (event) => {
       secondHalf.classList.toggle("screen-half")
       secondHalf.classList.toggle("hide")
   }
-  if (event.code === "Digit1") {
+  if (event.code === keyBindingsManager.bindings["Start First Clock"]) {
     clock1.start_signal()
   }
-  if (event.code === "Digit2") {
+  if (event.code === keyBindingsManager.bindings["Start Second Clock"]) {
     clock2.start_signal()
   }
-  if (event.code === "KeyR") {
+  if (event.code === keyBindingsManager.bindings["Reset #1"] || event.code === keyBindingsManager.bindings["Reset #2"]) {
     clock1.reset_signal()
     clock2.reset_signal()
   }
-  if (event.code === "Digit3") {
+  if (event.code === keyBindingsManager.bindings["Stop First Clock"]) {
     clock1.stop_signal()
   }
-  if (event.code === "Digit4") {
+  if (event.code === keyBindingsManager.bindings["Stop Second Clock"]) {
     clock2.stop_signal()
   }
-  if (event.code === "KeyF") { 
+  if (event.code === keyBindingsManager.bindings["Fullscreen"]) { 
       document.documentElement.requestFullscreen();
+  }
+  if (event.code === keyBindingsManager.bindings["Toggle Settings"]) {
+    if(keyBindingsManager.isShown)
+      keyBindingsManager.showBindings();
+    else
+    keyBindingsManager.hideBindings();
   }
 })
 
