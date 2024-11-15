@@ -3,15 +3,18 @@ class KeyBindingsManager {
       this.defaultBindings = {
         'Toggle second clock': 'KeyW',
         'Start First Clock': 'Digit1',
-        'Stop First Clock': 'Digit2',
-        'Start Second Clock': 'Digit3',
+        'Stop First Clock': 'Digit3',
+        'Start Second Clock': 'Digit2',
         'Stop Second Clock': 'Digit4',
-        'Reset #1': 'KeyR',
-        'Reset #2': 'Digit5',
+        'Reset First #1': 'KeyR',
+        'Reset First #2': 'Digit5',
+        'Reset Second #1': 'KeyR',
+        'Reset Second #2': 'Digit6',
         'Fullscreen': 'KeyF',
         'Toggle Settings': 'F1'
       }
-      this.bindings = this.defaultBindings//this.getBindingsFromCookie();
+      this.bindings = this.defaultBindings;
+      //this.getBindingsFromCookie();
       console.log(this)
       this.renderBindings();
       this.addEventListeners();
@@ -19,17 +22,22 @@ class KeyBindingsManager {
   }
 
   getBindingsFromCookie() {
-      const cookie = document.cookie.replace(
+    // nop
+    /*  const cookie = document.cookie.replace(
       /(?:(?:^|.*;\s*)key_bindings\s*\=\s*([^;]*).*$)|^.*$/,
       "$1"
       );
       return cookie ? JSON.parse(cookie) : this.defaultBindings;
+    */
   }
 
   saveBindingsToCookie() {
+    // nop
+    /*
       const expirationDate = new Date();
       expirationDate.setFullYear(expirationDate.getFullYear() + 1);
       document.cookie = `key_bindings=${JSON.stringify(this.bindings)};expires=${expirationDate.toUTCString()};path=/`;
+    */
   }
 
   renderBindings() {
@@ -91,12 +99,12 @@ class KeyBindingsManager {
 
   handleBindingChange(key, value) {
       this.bindings[key] = value;
-      this.saveBindingsToCookie();
+      //this.saveBindingsToCookie();
   }
 
   resetBindings() {
       this.bindings = this.defaultBindings;
-      this.saveBindingsToCookie();
+      //this.saveBindingsToCookie();
       this.renderBindings();
   }
 
@@ -318,8 +326,10 @@ addEventListener("keydown", (event) => {
   if (event.code === keyBindingsManager.bindings["Start Second Clock"]) {
     clock2.start_signal()
   }
-  if (event.code === keyBindingsManager.bindings["Reset #1"] || event.code === keyBindingsManager.bindings["Reset #2"]) {
+  if (event.code === keyBindingsManager.bindings["Reset First #1"] || event.code === keyBindingsManager.bindings["Reset First #2"]) {
     clock1.reset_signal()
+  }
+  if (event.code === keyBindingsManager.bindings["Reset Second #1"] || event.code === keyBindingsManager.bindings["Reset Second #2"]) {
     clock2.reset_signal()
   }
   if (event.code === keyBindingsManager.bindings["Stop First Clock"]) {
